@@ -11,6 +11,9 @@ function setup_logfile_tee () {
   echo D: "Log file will be: $DEST"
   >>"$DEST" || return $?$(
     echo E: "Failed write-append test for logfile: $DEST" >&2)
+  local LLP="${CFG[doibot_log_links_pattern]}"
+  [ -z "$LLP" ] || ln --symbolic --relative --no-target-directory \
+    --force -- "$DEST" "${LLP//|/latest}" || return $?
   rechown_logsdir || return $?$(
     echo E: "Failed to re-chown logfiles" >&2)
   exec 4>&1

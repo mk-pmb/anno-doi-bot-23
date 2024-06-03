@@ -6,6 +6,7 @@ local LOG_SUBDIR="$(printf '%(%y%m)T' "${BOTRUN[start_uts]}")"
 #     runs in its own function scope.
 
 CFG[doibot_log_dest_dir]="$LOG_BASEDIR/$LOG_SUBDIR"
+CFG[doibot_log_links_pattern]="$LOG_BASEDIR/|.txt"
 
 CFG[doibot_rerun_state_dir]="$LOG_BASEDIR/rerun_state"
 CFG[doibot_rerun_min_delay]='0 days 0 hours 10 minutes 0 seconds'
