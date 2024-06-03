@@ -29,6 +29,7 @@ CFG[anno_public_baseurl]='http://localhost:33321/anno/'
 
 CFG[anno_url_versep]='~'
 
+
 CFG[doibot_auth_baseurl]='http://localhost:33321/anno/'
 # ^-- The URL for privileged bot access to the anno server's
 # anno namespace. If empty, `anno_public_baseurl` is used.
@@ -112,6 +113,27 @@ CFG[doibot_stamp_reply_grep_flags]='--perl-regexp'
 CFG[anno_doi_prefix]='0.0/no-doi-prefix.'
 CFG[anno_doi_versep]='_'
 CFG[anno_doi_suffix]=''
+
+
+# If for some reason you want to use a different version separator
+# for certain base IDs, you can specify exceptions here:
+CFG[anno_doi_versep_exceptions]='
+  # If a line contains `#`, that and the remainder is ignored.
+  # All U+0020 space and U+0009 character tabulation are ignored as well.
+  # After the above, what remains must be empty (which will be ignored) or
+  # must be a slash, a base ID (case insensitive as required for DOIs),
+  # another slash, and the separator. One item per line.
+  # Separators that contain `%` or `?` are invalid. You can use that to
+  # foil accidential attempts at registering DOIs for your test fixtures.
+
+  /212d7693319d4/           %   # anno is retracted
+  /b4ddd7677eef6/           %   # anno is retracted
+  /bngawvt6tlm034vtahnl-q/  %   # anno is retracted
+
+  /09a70a00f6719/           ~   # use legacy versep
+  /AKhB1XIyTCGjxPvtw7JEIA/  ~   # use legacy versep
+  /Qwa14DtxRSOAP1Zb51G-Zw/  ~   # use legacy versep
+  '
 
 
 

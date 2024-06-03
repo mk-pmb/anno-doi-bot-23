@@ -1,5 +1,5 @@
 { "name": "anno-doi-bot-23",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "DOI registration bot for web annotations, optimized for use by the Heidelberg University Library.",
   "keywords": [
     "annotation",

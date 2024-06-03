@@ -135,14 +135,51 @@ function scan_and_assign__vh_entry () {
     echo P: "    • adapter: update existing DOI: <$OLD_DOI>"
   else
     echo P: "    • adapter: register new DOI:"
+    REG_DOI="$(scan_and_assign__decide_versep)"
+    [ -n "$REG_DOI" ] || return 4$(
+      echo E: $FUNCNAME: "Failed to decide the version separator." >&2)
     REG_DOI="${CFG[anno_doi_prefix]}$ANNO_BASE_ID$(
-      )${CFG[anno_doi_versep]}$ANNO_VER_NUM${CFG[anno_doi_suffix]}"
+      )$REG_DOI$ANNO_VER_NUM${CFG[anno_doi_suffix]}"
     VHE_MEM["$VHE_NUM":stamp_doi]="$REG_DOI"
     (( VHE_MEM[n_total_new_dois] += 1 ))
   fi
   scan_and_assign__reg_one_doi || return $?
 
   # VH_ACCUM+="$ANNO_JSON"
+}
+
+
+function scan_and_assign__decide_versep () {
+  local E="The version separator exception for anno base ID '$ANNO_BASE_ID'"
+  # ^-- Keep that list of de-deblanked versions around for potential error
+  # reporting.
+  local VS="${CFG[anno_doi_versep_exceptions]//$'\r'/}"
+
+  local FOUND="$( echo "${VS//[$' \t']/}" | cut -d '#' -f 1 \
+    | grep -Fine "/$ANNO_BASE_ID/" )"
+  # ^-- Using `cut` `grep -Pose '^[^#]*'` would not accept lines that
+  #     start with something else. However, we want all lines printed
+  #     in order to have reliable line numbers.
+
+  case "$FOUND" in
+    '' ) echo "${CFG[anno_doi_versep]}"; return 0;;
+    *$'\n'* ) echo "$E is defined more than once!" >&2; return 20;;
+  esac
+  local LNUM="${FOUND%%:*}"
+  FOUND="${FOUND#*:}"
+  case "$FOUND" in
+    '' ) ;;
+    */ ) echo "$E must not end with slash." >&2; return 4;;
+    */*/* ) FOUND="${FOUND#*/*/}";;
+    * ) echo "$E Exotic flow control or grep failed." >&2; return 60;;
+  esac
+  case "$FOUND" in
+    *'%'* | *'?'* )
+      echo "$E contains inacceptable character(s): '$(
+        sed -nre "$LNUM"p <<<"$VS" )'" >&2
+      return 20;;
+  esac
+  echo "$FOUND"
 }
 
 
