@@ -111,8 +111,17 @@ function scan_and_assign__vh_entry () {
 
   echo P: "  • $TRACE_ENT: download…"
   local ANNO_JSON="$(webfetch -- "$ANNO_ID_URL")"
-  [ -n "$ANNO_JSON" ] || return 6$(
-    echo E: "Failed to request anno: $ANNO_ID_URL" >&2)
+  case "$ANNO_JSON" in
+    '' )
+      echo E: "Failed to request anno: $ANNO_ID_URL" >&2
+      return 6;;
+    *'{'*'"@context":'*'"'*'"'*'}' ) ;;
+    * )
+      ANNO_JSON="${ANNO_JSON//$'\n'/¶ }"
+      [ "${#ANNO_JSON}" -lt 128 ] || ANNO_JSON="${ANNO_JSON:0:127}…"
+      echo E: "Response seems to not be an annotation: $ANNO_JSON" >&2
+      return 6;;
+  esac
   # log_dump <<<"$ANNO_JSON" "anno.$ANNO_BASE_ID~$VHE_NUM.json" || return $?
 
   local OLD_DOI="${VH_INFO[dc:identifier]}"
