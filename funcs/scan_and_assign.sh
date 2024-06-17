@@ -56,6 +56,7 @@ function scan_and_assign__found_link () {
 
   local -A VH_INFO=()
   # local VH_ACCUM=
+  # local RETRACTED_ANNO_JSON='false' # A literal JSON value.
   local FIRST_CREATED=
   local VHE_NUM=0 VH_LENGTH="${#LIST[@]}"
   local -A VHE_MEM=( [n_total_new_dois]=0 )
@@ -105,7 +106,7 @@ function scan_and_assign__vh_entry () {
   # [ -z "$VH_ACCUM" ] || VH_ACCUM+=$',\n'
   if [ -n "${VH_INFO[as:deleted]}" ]; then
     echo P: "  • $TRACE_ENT: retracted. skip."
-    # VH_ACCUM+='false'
+    # VH_ACCUM+="$RETRACTED_ANNO_JSON"
     return 0
   fi
 
@@ -116,6 +117,12 @@ function scan_and_assign__vh_entry () {
       echo E: "Failed to request anno: $ANNO_ID_URL" >&2
       return 6;;
     *'{'*'"@context":'*'"'*'"'*'}' ) ;;
+    'Gone: Annotation was unpublished'* )
+      # Version history not already announcing the retraction may happen
+      # due to race condition, bug, or configuration.
+      echo P: '    • retracted. skip.'
+      # VH_ACCUM+="$RETRACTED_ANNO_JSON"
+      return 0;;
     * )
       ANNO_JSON="${ANNO_JSON//$'\n'/¶ }"
       [ "${#ANNO_JSON}" -lt 128 ] || ANNO_JSON="${ANNO_JSON:0:127}…"
