@@ -31,7 +31,7 @@ function with_rerun_state__inner_dict () {
     source -- "$RRS_FILE" || return $?$(
       echo E: "Failed to read rerun state file: $RRS_FILE" >&2)
     if [ "$DBGLV" -ge 2 ]; then
-      echo -n D: "loaded rerun state for topic '$RRS_TOPIC': "
+      echo -n D: "Loaded rerun state for topic '$RRS_TOPIC': "
       local -p
     fi
     if [ "${RERUN_STATE[earliest_next_run]:-0}" -le "$EPOCHSECONDS" ]; then
@@ -46,7 +46,7 @@ function with_rerun_state__inner_dict () {
   "$@"; RRS_RV=$?
 
   if [ "$DBGLV" -ge 2 ]; then
-    echo -n D: "new rerun state for topic '$RRS_TOPIC'," \
+    echo -n D: "New rerun state for topic '$RRS_TOPIC'," \
       "to be saved to $RRS_TMPF: "
     local -p
   fi
