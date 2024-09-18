@@ -72,7 +72,8 @@ function scan_and_assign__found_link () {
         "Error while processing VH entry #$VHE_NUM" >&2)
   done
   [ "$VHE_NUM" -ge 1 ] || return 4$(echo E: 'Found no VH entries.' >&2)
-  [ "${VHE_MEM[lvr:anno_id_url]}" == 0 ] \
+  [ "$DBGLV" -lt 16 ] || local -p | grep -Fe VHE_MEM >&2
+  [ -z "${VHE_MEM[lvr:anno_id_url]}" ] \
     || scan_and_assign__reg_lvr_doi || return $?
 
   scan_and_assign__stamp_newly_registered_dois || return $?
@@ -147,10 +148,10 @@ function scan_and_assign__vh_entry () {
       echo E: $FUNCNAME: "Failed to decide the version separator." >&2)
     REG_DOI="${CFG[anno_doi_prefix]}$ANNO_BASE_ID$(
       )$REG_DOI$ANNO_VER_NUM${CFG[anno_doi_suffix]}"
-    VHE_MEM["$VHE_NUM":stamp_doi]="$REG_DOI"
     (( VHE_MEM[n_total_new_dois] += 1 ))
   fi
   scan_and_assign__reg_one_doi || return $?
+  [ -n "$OLD_DOI" ] || VHE_MEM["$VHE_NUM":stamp_doi]="$REG_DOI" >&2
 
   # VH_ACCUM+="$ANNO_JSON"
 }
@@ -245,7 +246,7 @@ function scan_and_assign__reg_one_doi () {
   else
     echo E: "    • adapter silently failed with exit code $REG_RV." >&2
   fi
-  return "$REG_RV"
+  return 4 # Do not forward $REG_RV as it could be 0.
 }
 
 
