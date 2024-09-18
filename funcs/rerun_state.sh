@@ -115,8 +115,8 @@ function with_rerun_state__calc_next_earliest_rerun () {
 
 function with_rerun_state__inner_fail_score () {
   with_rerun_state__calc_next_earliest_rerun || return $?
-  local FAIL_SCORE=0
-  "$@"; FAIL_SCORE+=$?
+  "$@"; local FAIL_SCORE=$?
+  [ "$DBGLV" -lt 2 ] || echo D: $FUNCNAME: "Task $* -> fail='$FAIL_SCORE'" >&2
   if [ "$FAIL_SCORE" -lt 1 ]; then
     if [ "${RERUN_STATE[fail_score]}" != 0 ]; then
       RERUN_STATE[fail_score]=0

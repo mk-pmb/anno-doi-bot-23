@@ -17,6 +17,7 @@ function cli_main () {
   bot_init_before_config || return $?
   source_in_func "$BOT_FUNCD"/cfg.default.rc || return $?
   load_host_config doibot || return $?
+  [ "$DBGLV" -lt 2 ] || echo D: "Gonna run bot task: ${BOTRUN[task]} $*" >&2
   "${BOTRUN[task]}" "$@" || return $?$(echo E: "Bot task failed (rv=$?):$(
     printf ' ‹%s›' "${BOTRUN[task]}" "$@")" >&2)
 }

@@ -1,5 +1,5 @@
 { "name": "anno-doi-bot-23",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "DOI registration bot for web annotations, optimized for use by the Heidelberg University Library.",
   "keywords": [
     "annotation",
@@ -28,13 +28,13 @@
   "eslintConfig": { "extends": "nodejs-pmb" },
 
   "dependencies": {
-    "enveval2401-pmb": "^0.1.0",
-    "nodemjs": "^0.1.14"
+    "enveval2401-pmb": "^0.1.1",
+    "nodemjs": "^0.1.15"
   },
   "devDependencies": {
-    "eslint-config-nodejs-pmb": "^0.3.5",
+    "eslint-config-nodejs-pmb": "^0.3.6",
     "eslint-plugin-json-light-pmb": "^1.0.7",
-    "eslint-plugin-n": "^15.2.4"
+    "eslint-plugin-n": "^17.10.2"
   },
 
 

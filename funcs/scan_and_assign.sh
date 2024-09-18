@@ -3,6 +3,8 @@
 
 
 function scan_and_assign () {
+  doibot_autocfg_adapter_prog || return $?$(
+    echo E: $FUNCNAME: "Failed to auto-configure adapter, rv=$?." >&2)
   local RSS_URL="bot-auth:by/has_stamp;rss=vh/_ubhd:doiAssign"
   logts P: "Scan RSS feed: $RSS_URL"
   local RSS_RAW="$(webfetch "$RSS_URL")"
