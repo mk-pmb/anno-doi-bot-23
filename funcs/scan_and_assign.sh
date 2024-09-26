@@ -136,6 +136,7 @@ function scan_and_assign__vh_entry () {
 
   local OLD_DOI="${VH_INFO[dc:identifier]}"
   local REG_DOI="$OLD_DOI"
+  scan_and_assign__fixup_reg_doi || return $?
   local DOI_TARGET_URL="$ANNO_ID_URL"
   VHE_MEM["$VHE_NUM":anno_id_url]="$ANNO_ID_URL"
   VHE_MEM[lvr:anno_id_url]="$ANNO_ID_URL"
@@ -148,8 +149,9 @@ function scan_and_assign__vh_entry () {
     REG_DOI="$(scan_and_assign__decide_versep)"
     [ -n "$REG_DOI" ] || return 4$(
       echo E: $FUNCNAME: "Failed to decide the version separator." >&2)
-    REG_DOI="${CFG[anno_doi_prefix]}$ANNO_BASE_ID$(
+    REG_DOI="${CFG[anno_doi_prefix]}${ANNO_BASE_ID}$(
       )$REG_DOI$ANNO_VER_NUM${CFG[anno_doi_suffix]}"
+    scan_and_assign__fixup_reg_doi || return $?
     (( VHE_MEM[n_total_new_dois] += 1 ))
   fi
   scan_and_assign__reg_one_doi || return $?
@@ -296,10 +298,17 @@ function scan_and_assign__reg_lvr_doi () {
   local ANNO_JSON="${VHE_MEM[lvr:anno_json]}"
   [ -n "$ANNO_JSON" ] || return 4$(
     echo E: $FUNCNAME: 'No cached ANNO_JSON for LVR!' >&2)
-  local REG_DOI="${CFG[anno_doi_prefix]}$ANNO_BASE_ID${CFG[anno_doi_suffix]}"
+  local REG_DOI="${CFG[anno_doi_prefix]}$ANNO_BASE_ID$(
+    )${CFG[anno_doi_suffix]}"
+  scan_and_assign__fixup_reg_doi || return $?
   local DOI_TARGET_URL='anno-fx:latest'
   scan_and_assign__reg_one_doi || return $?$(
     echo E: 'Failed to update LVR DOI.' >&2)
+}
+
+
+function scan_and_assign__fixup_reg_doi () {
+  REG_DOI="${REG_DOI,,}"
 }
 
 
