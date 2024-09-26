@@ -49,6 +49,19 @@ Usage
 
 
 
+Notes on the bot's behavior
+---------------------------
+
+* In case the bot receives any unexpected reply from the DOI registry,
+  it gives up the entire run. This is intentional, because an unexpected
+  reply could mean the registry is under heavy load, or the bot might even
+  be misbehaving due to a config error.
+  In both cases, we should avoid annoying the registry further until
+  an admin has reviewed the error message.
+
+
+
+
 
 <!--#toc stop="scan" -->
 
