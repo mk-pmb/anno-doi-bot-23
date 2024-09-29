@@ -5,8 +5,16 @@
 function scan_and_assign () {
   doibot_autocfg_adapter_prog || return $?$(
     echo E: $FUNCNAME: "Failed to auto-configure adapter, rv=$?." >&2)
-  local RSS_URL="bot-auth:by/has_stamp;rss=vh/_ubhd:doiAssign"
+  scan_and_assign__from_rss_feed || return $?
+}
+
+
+function scan_and_assign__from_rss_feed () {
+  local RSS_URL="$1"
+  [ -n "$RSS_URL" ] || RSS_URL="${CFG[doibot_default_todo_rss_feed]}"
+  RSS_URL="${RSS_URL//[$'\r\n \t']/}"
   logts P: "Scan RSS feed: $RSS_URL"
+  [ -n "$RSS_URL" ] || return 4$(echo E: $FUNCNAME: 'RSS_URL is empty!' >&2)
   local RSS_RAW="$(webfetch "$RSS_URL")"
   local RSS_XML="${RSS_RAW//[$'\r\n \t']/ }"
   if ! rssfeed_has_channel <<<"$RSS_XML"; then
