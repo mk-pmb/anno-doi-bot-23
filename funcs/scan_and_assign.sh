@@ -14,26 +14,30 @@ function scan_and_assign () {
     echo E: "No RSS channel in feed response." >&2
     return 2
   fi
-  local RSS_LINKS=()
-  readarray -t RSS_LINKS < <(<<<"$RSS_XML" grep -oPe '<link>[^<>]+')
+  <<<"$RSS_XML" grep -oPe '<link>[^<>]+' \
+    | scan_and_assign__scan_vhlinks_from_stdin || return $?
+}
 
+
+function scan_and_assign__scan_vhlinks_from_stdin () {
+  local VH_LINKS=()
+  readarray -t VH_LINKS
   local MANDATORY_VH_ENTRY_FIELDS=(
     id
     created
     )
   local VH_LINK=
-  local N_RSS_LINKS="${#RSS_LINKS[@]}"
+  local N_VH_LINKS="${#VH_LINKS[@]}"
   local ERR_CNT=0
-  for VH_LINK in "${RSS_LINKS[@]}"; do
+  for VH_LINK in "${VH_LINKS[@]}"; do
     VH_LINK="${VH_LINK#*>}"
     scan_and_assign__found_link && continue
     echo W: "$FUNCNAME: Failure (rv=$?) for VH link: $VH_LINK" >&2
     (( ERR_CNT += 1 ))
   done
-
   [ "$ERR_CNT" == 0 ] || return 4$(
     echo E: "$FUNCNAME: Encountered problems with $ERR_CNT VH links." >&2)
-  logts P: "Success. Processed $N_RSS_LINKS VH links."
+  logts P: "Success. Processed $N_VH_LINKS VH links."
 }
 
 
