@@ -5,7 +5,15 @@
 function scan_and_assign () {
   doibot_autocfg_adapter_prog || return $?$(
     echo E: $FUNCNAME: "Failed to auto-configure adapter, rv=$?." >&2)
-  scan_and_assign__from_rss_feed || return $?
+  [ "$#" -ge 1 ] || set -- \
+    'from_baseid_list_file . --ignore-if-missing' \
+    'from_rss_feed' \
+    ;
+  while [ "$#" -ge 1 ]; do
+    scan_and_assign__$1 || return $?$(
+      echo E: $FUNCNAME: "Failed to process todo specification: '$1'" >&2)
+    shift
+  done
 }
 
 
@@ -46,6 +54,25 @@ function scan_and_assign__scan_vhlinks_from_stdin () {
   [ "$ERR_CNT" == 0 ] || return 4$(
     echo E: "$FUNCNAME: Encountered problems with $ERR_CNT VH links." >&2)
   logts P: "Success. Processed $N_VH_LINKS VH links."
+}
+
+
+function scan_and_assign__from_baseid_list_file () {
+  local SRC_FN="$1"; shift
+  [ -n "${SRC_FN%.}" ] || SRC_FN='scan_extra_baseids.txt'
+  if [ "$1" == '--ignore-if-missing' ]; then
+    shift
+    [ -f "$SRC_FN" ] || return 0
+  elif [ -f "$SRC_FN" ]; then
+    true
+  else
+    echo E: $FUNCNAME: "Input file is not a regular file: $SRC_FN" >&2
+    return 4
+  fi
+  local VAL='s~\s+$~~; s~^[A-Za-z0-9_-]\S+$~\v&/versions~p'
+  VAL="$(sed -nre "$VAL" -- "$SRC_FN")"
+  VAL="${VAL//$'\v'/${CFG[anno_public_baseurl]}}"
+  <<<"$VAL" scan_and_assign__scan_vhlinks_from_stdin || return $?
 }
 
 
