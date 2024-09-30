@@ -173,7 +173,12 @@ function scan_and_assign__vh_entry () {
   esac
   # log_dump <<<"$ANNO_JSON" "anno.$ANNO_BASE_ID~$VHE_NUM.json" || return $?
 
-  local OLD_DOI="${VH_INFO[dc:identifier]}"
+  local OLD_DOI= # Pre-declare as to not override the return value of:
+  OLD_DOI="$(runjs_eval DATA="$ANNO_JSON" \
+    CODE="clog(data['dc:identifier'] || '');"
+    )" || return 6$(echo E: "Failed to detect potential old DOI." >&2)
+  OLD_DOI="${OLD_DOI#https://doi.org/}"
+
   local REG_DOI="$OLD_DOI"
   scan_and_assign__fixup_reg_doi || return $?
   local DOI_TARGET_URL="$ANNO_ID_URL"
