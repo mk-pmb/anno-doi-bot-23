@@ -77,7 +77,7 @@ CFG[doibot_stamp_url]='bot-auth:<°anno_vers_id>'
 
 
 CFG[doibot_default_todo_rss_feed]='
-  bot-auth:by/has_stamp;rss=vh/_ubhd:doiAssign'
+  bot-auth:by/has_stamp;fmt=rss:vh/_ubhd:doiAssign'
 # ^-- Which RSS feed to read for detecting DOI requests.
 #     Whitespace is ignored for convenience.
 
