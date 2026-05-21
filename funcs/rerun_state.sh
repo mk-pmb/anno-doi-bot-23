@@ -116,15 +116,20 @@ function with_rerun_state__calc_next_earliest_rerun () {
 function with_rerun_state__inner_fail_score () {
   with_rerun_state__calc_next_earliest_rerun || return $?
   "$@"; local FAIL_SCORE=$?
+  local OLD_FAIL_SCORE="${RERUN_STATE[fail_score]:-0}"
+  local MAX_FAIL_SCORE=9009009009
   [ "$DBGLV" -lt 2 ] || echo D: $FUNCNAME: "Task $* -> fail='$FAIL_SCORE'" >&2
   if [ "$FAIL_SCORE" -lt 1 ]; then
-    if [ "${RERUN_STATE[fail_score]}" != 0 ]; then
+    if [ "$OLD_FAIL_SCORE" != 0 ]; then
       RERUN_STATE[fail_score]=0
       echo D: "Cumulative fail score has been reset."
     fi
     with_rerun_state__set_rss healthy || true
   else
-    let FAIL_SCORE="${RERUN_STATE[fail_score]} + $FAIL_SCORE"
+    (( FAIL_SCORE += OLD_FAIL_SCORE ))
+    [ "$FAIL_SCORE" -ge "$OLD_FAIL_SCORE" ] || FAIL_SCORE="$MAX_FAIL_SCORE"$(
+      echo W: "Cumulative fail score went beyond the limits of bash math!" >&2)
+    [ "$FAIL_SCORE" -le "$MAX_FAIL_SCORE" ] || FAIL_SCORE="$MAX_FAIL_SCORE"
     RERUN_STATE[fail_score]="$FAIL_SCORE"
     echo W: "Cumulative fail score increased to $FAIL_SCORE." >&2
     if [ "$FAIL_SCORE" -lt "${CFG[doibot_rss_warnlevel]}" ]; then
