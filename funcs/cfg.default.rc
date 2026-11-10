@@ -5,6 +5,13 @@ local LOG_SUBDIR="$(printf '%(%y%m)T' "${BOTRUN[start_uts]}")"
 # ^-- We can safely use `local` because each doibot rc file
 #     runs in its own function scope.
 
+# When using a docker bridge, ANNO_HOST and ANNO_PORT are as seen from inside.
+local ANNO_HOST="${ANNOSRV_HOST:-localhost}"
+local ANNO_PORT="${ANNOSRV_PORT:-33321}"
+local ANNO_PUB_PORT="$ANNOSRV_PUBLIC_PORT"
+[ -n "$ANNO_PUB_PORT" ] || ANNO_PUB_PORT="${ANNOSRV_PUBLIC_INTF##*[0-9]:}"
+[ -n "$ANNO_PUB_PORT" ] || ANNO_PUB_PORT="$ANNO_PORT"
+
 CFG[doibot_log_dest_dir]="$LOG_BASEDIR/$LOG_SUBDIR"
 CFG[doibot_log_links_pattern]="$LOG_BASEDIR/|.txt"
 
@@ -20,7 +27,7 @@ CFG[doibot_rerun_min_delay]='0 days 0 hours 10 minutes 0 seconds'
 # monitoring software will always have the failed container.)
 
 
-CFG[anno_public_baseurl]='http://localhost:33321/anno/'
+CFG[anno_public_baseurl]="http://localhost:$ANNO_PUB_PORT/anno/"
 # ^-- Expected prefix for DOI redirect URLs.
 # This is a safeguard against accidential misconfiguration and bugs.
 # The RSS feed is expected to link to URLs inside this namespace even
@@ -30,7 +37,7 @@ CFG[anno_public_baseurl]='http://localhost:33321/anno/'
 CFG[anno_url_versep]='~'
 
 
-CFG[doibot_auth_baseurl]='http://localhost:33321/anno/'
+CFG[doibot_auth_baseurl]="http://$ANNO_HOST:$ANNO_PORT/anno/"
 # ^-- The URL for privileged bot access to the anno server's
 # anno namespace. If empty, `anno_public_baseurl` is used.
 #
