@@ -8,6 +8,7 @@ function webfetch () {
   [ -n "$ABU" ] || return 4$(echo E: 'Empty doibot_auth_baseurl' >&2)
   local CURL_OPT=(
     --silent
+    --show-error
     --user-agent "${CFG[doibot_useragent]}"
     )
   local LATE_ARGS=()
