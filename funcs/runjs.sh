@@ -19,7 +19,7 @@ function runjs__core () {
 }
 
 
-function runmjs_file () { runjs__core nodemjs "$@"; return $?; }
+function runmjs_file () { runjs__core nodejs "$@"; return $?; }
 
 
 
